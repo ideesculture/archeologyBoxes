@@ -59,10 +59,7 @@ class archeologyBoxesPlugin extends BaseApplicationPlugin
 		$vn_item_id = $t_item->getPrimaryKey();
 		$vn_code = $t_item->getTypeCode();
 
-
-
-		if ($vs_table_name == "ca_objects") {
-
+		if (($vs_table_name == "ca_objects")&& (in_array($vn_code,$this->opo_config->get("types")))) {
 			$vs_archeologyBoxes_url = caNavUrl($this->getRequest(), "archeologyBoxes", "Boxes", "Index", array("id"=>$vn_item_id));
 
             $vs_buf = "<div style=\"text-align:center;width:100%;margin-top:10px;\">"
