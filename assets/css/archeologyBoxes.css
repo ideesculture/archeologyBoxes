@@ -1,0 +1,11 @@
+/* line 1, ../sass/archeologyBoxes.scss */
+.put-in-box-button {
+  text-align: center;
+  padding: 6px 20px;
+  margin: -6px 0 8px;
+  background: gray;
+  color: white !important;
+  border-radius: 4px;
+  text-decoration: none !important;
+  display: inline-block;
+}
