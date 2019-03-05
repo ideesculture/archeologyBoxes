@@ -1,4 +1,5 @@
 <?php
+	require_once(__CA_MODELS_DIR__."/ca_list_items.php");
 
     class BoxController  extends ActionController {
         # -------------------------------------------------------
@@ -35,6 +36,15 @@
             $collection_id = $vt_object->get("ca_collections.collection_id");
             $vt_collection = new ca_collections($collection_id);
             $caisses = $vt_collection->get("ca_objects.object_id", ["returnAsArray"=>true]);
+
+            $vt_referentiel = new ca_lists();
+            $vt_referentiel->load(array('idno'=>"inrap_referentiel)"));
+			$references = [];
+			foreach($vt_referentiel->getItemsForList("inrap_referentiel") as $num=>$reference) {
+				$reference = reset($reference);
+				$references[$num] = $reference["name_singular"];
+			}
+
             if(is_array($caisses) && count($caisses)>0) {
                 foreach($caisses as $key=>$caisse) {
                     $vt_caisse = new ca_objects($caisse);
@@ -47,7 +57,8 @@
             } else {
                 $caisses = [];
             }
-            $this->view->setVar('caisses', $view_caisses);
+			$this->view->setVar('caisses', $view_caisses);
+			$this->view->setVar('references', $references);
             return $this->render('popup_html.php');
         }
 
@@ -64,27 +75,56 @@
         }
 
         public function CreateBox() {
+        	error_reporting(E_ERROR);
             $this->view->setVar('plugin_path', $this->ps_plugin_path);
             $this->view->setVar('plugin_url', $this->ps_plugin_url);
             $vn_id = $this->request->getParameter("id",pInteger);
             $box_idno = $this->request->getParameter("idno",pString);
 
-            $vt_object = new ca_objects($vn_id);
+            $reference_id = $this->request->getParameter("reference",pString);
+
+            $vt_reference = new ca_list_items($reference_id);
+
+            $caisse_long = $vt_reference->get("ca_list_items.dimensions_empl.caisse_long");
+			$vn_caisse_long = $caisse_long*1;
+			if(strpos($caisse_long, "cm")) $vn_caisse_long *= 10;
+
+			$caisse_largeur = $vt_reference->get("ca_list_items.dimensions_empl.caisse_largeur");
+			$vn_caisse_largeur = $caisse_largeur*1;
+			if(strpos($caisse_largeur, "cm")) $vn_caisse_largeur *= 10;
+
+			$caisse_hauteur = $vt_reference->get("ca_list_items.dimensions_empl.caisse_hauteur");
+			$vn_caisse_hauteur = $caisse_hauteur*1;
+			if(strpos($caisse_hauteur, "cm")) $vn_caisse_hauteur *= 10;
+
+			$caisse_surface = $vt_reference->get("ca_list_items.dimensions_empl.caisse_surface");
+			$vn_caisse_surface = $caisse_surface*1;
+			if(strpos($caisse_surface, "cm")) $vn_caisse_surface *= 10;
+
+			$caisse_litres = $vt_reference->get("ca_list_items.inrap_volume_caisse_l");
+			$vn_caisse_litres = $caisse_litres*1;
+
+			$vt_object = new ca_objects($vn_id);
             $collection_id = $vt_object->get("ca_collections.collection_id");
 
             $vt_box = new ca_objects();
             $vt_box->setMode(ACCESS_WRITE);
-            $vt_box->set('type_id', "Caisse");
+            $vt_box->set('type_id', "caisse");
             $vt_box->set('idno', $box_idno);
             $box_id = $vt_box->insert();
             $vt_box->addLabel(array(
-                'name' => $box_idno
+                'name' => strtoupper($box_idno)
             ), 2, null, true);
             $vt_box->update();
-            
-            $vt_object->addRelationship('ca_objects', $box_id, "isPartOf", null, null, null, null, array('allowDuplicates' => false));
-
-            $vt_box->addRelationship('ca_collections', $collection_id, "part_of", null, null, null, null, array('allowDuplicates' => false));
+            $dimensions = [
+				"dimensions_depth"=>$vn_caisse_long." mm",
+				"dimensions_width"=>$vn_caisse_largeur." mm",
+				"dimensions_height"=>$vn_caisse_hauteur." mm"
+			];
+            $vt_box->addAttribute($dimensions,"dimensions");
+			$vt_box->update();
+            $vt_object->addRelationship('ca_objects', $box_id, "part_of", null, null, null, null, array('allowDuplicates' => false));
+			$vt_box->addRelationship('ca_collections', $collection_id, "part_of", null, null, null, null, array('allowDuplicates' => false));
 
             $this->redirect(caNavUrl($this->getRequest(), "editor", "objects", "ObjectEditor/Edit", ["object_id"=>$box_id])); //"/gestion/index.php/editor/objects/ObjectEditor/Edit/object_id/3065");
         }

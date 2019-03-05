@@ -54,26 +54,67 @@ class archeologyBoxesPlugin extends BaseApplicationPlugin
                 . "<span onclick=\"javascript:modalArcheologyBoxes.showPanel('" . $vs_archeologyBoxes_url . "');\" class='put-in-box-button'>"
                 . $this->opo_config->get('button_text')
                 . "</span></div>
+<style>
+/* Type change */
+#caCreateChild2Panel {
+    position: fixed;
+    top: 120px !important;
+    left: 0px;
+    width: 950px;
+    display: none;
+    margin: 0px;
+    padding:0px !important;
+    z-index: 31000;			/* needs to be on top of menu bar, which has z-index=30000 */
+    background-color: #FFFFFF;
+    border-radius:4px;
+    -moz-border-radius:4px;
+    -webkit-border-radius:4px;
+}
+#caCreateChild2Panel .close a{
+    text-decoration:none;
+    font-size:16px;
+}
+
+#caCreateChild2PanelContentArea {
+    padding:10px;
+}
+
+#caCreateChild2PanelControlButtons {
+    width: 100%;
+    text-align: center;
+}
+
+#caCreateChild2PanelControlButtons table {
+    width: 100%;
+}
+#caCreateChild2PanelControlButtons img.form-button-left {
+	margin-top:-10px;
+}
+</style>
 <script>
     var modalArcheologyBoxes={};
     jQuery(document).on(\"ready\", function() {
-        modalArcheologyBoxes = caUI.initPanel({
-            panelID: \"caPanel\",						/* DOM ID of the <div> enclosing the panel */
-            panelContentID: \"caPanelContent\",		/* DOM ID of the content area <div> in the panel */
-            exposeBackgroundColor: \"#000000\",				
-            exposeBackgroundOpacity: 0.7,					
-            panelTransitionSpeed: 400,						
-            closeButtonSelector: \".close\",
-            center: true,
-                centerHorizontal: true,
-                centerVertical : true,
-            onOpenCallback: function() {
-                jQuery(\"#topNavContainer\").hide(250);
-            },
-            onCloseCallback: function() {
-                jQuery(\"#topNavContainer\").show(250);
-            }  
-        });
+    	if (caUI.initPanel) {
+			modalArcheologyBoxes = caUI.initPanel({ 
+				panelID: \"caCreateChild2Panel\",						/* DOM ID of the <div> enclosing the panel */
+				panelContentID: \"caCreateChild2PanelContentArea\",		/* DOM ID of the content area <div> in the panel */
+				exposeBackgroundColor: \"#000000\",				
+				exposeBackgroundOpacity: 0.7,					
+				panelTransitionSpeed: 400,						
+				closeButtonSelector: \".close\",
+				center: true,
+				onOpenCallback: function() {
+				jQuery(\"#topNavContainer\").hide(250);
+				},
+				onCloseCallback: function() {
+					jQuery(\"#topNavContainer\").show(250);
+				}
+			});
+		}
+    	jQuery(\"BODY\").append(
+    	'<div id=\"caCreateChild2Panel\" class=\"caCreateChild2Panel\"><div class=\"dialogHeader\">Mise en caisse</div><div id=\"caCreateChild2PanelContentArea\"></div></div>'
+    	);
+        
     });
     
     //modalArcheologyBoxes.showPanel('http://www.inrap.local/gestion/index.php/lookup/StorageLocation/GetHierarchyLevel?id=0%3A0&bundle=&init=1&root_item_id=&start=0&max=500'); //'http://www.inrap.local/".$vs_archeologyBoxes_url."');
