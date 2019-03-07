@@ -34,6 +34,9 @@
 
             $vt_object = new ca_objects($vn_id);
             $collection_id = $vt_object->get("ca_collections.collection_id");
+            if(!$collection_id) {
+				return $this->render('popup_no_collection_html.php');
+			}
             $vt_collection = new ca_collections($collection_id);
             $caisses = $vt_collection->get("ca_objects.object_id", ["returnAsArray"=>true]);
 
@@ -124,8 +127,8 @@
             $vt_box->addAttribute($dimensions,"dimensions");
 			$vt_box->update();
             $vt_object->addRelationship('ca_objects', $box_id, "part_of", null, null, null, null, array('allowDuplicates' => false));
+			die("ici");
 			$vt_box->addRelationship('ca_collections', $collection_id, "part_of", null, null, null, null, array('allowDuplicates' => false));
-
             $this->redirect(caNavUrl($this->getRequest(), "editor", "objects", "ObjectEditor/Edit", ["object_id"=>$box_id])); //"/gestion/index.php/editor/objects/ObjectEditor/Edit/object_id/3065");
         }
 
