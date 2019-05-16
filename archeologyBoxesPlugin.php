@@ -50,12 +50,20 @@ class archeologyBoxesPlugin extends BaseApplicationPlugin
         if (($vs_table_name == "ca_objects")&& (in_array($vn_code,$this->opo_config->get("object_types")))) {
             $vs_archeologyBoxes_url = caNavUrl($this->getRequest(), "archeologyBoxes", "box", "Popup", array("id"=>$vn_item_id));
 
-            $vs_buf = "<div style=\"text-align:center;width:100%;margin-top:10px;\">"
+            $vs_buf = "<div style=\"text-align:center;width:100%;margin:10px 0 20px 0;\">"
                 . "<span onclick=\"javascript:modalArcheologyBoxes.showPanel('" . $vs_archeologyBoxes_url . "');\" class='put-in-box-button'>"
                 . $this->opo_config->get('button_text')
                 . "</span></div>
 <style>
-/* Type change */
+.put-in-box-button {
+	border:1px solid #23B5C9;
+	background:#23B5C9;
+	color:white;
+	border-radius:6px;
+	padding:10px;
+	cursor:pointer;
+}
+
 #caCreateChild2Panel {
     position: fixed;
     top: 120px !important;
@@ -111,8 +119,7 @@ class archeologyBoxesPlugin extends BaseApplicationPlugin
 				}
 			});
 		}
-    	jQuery(\"BODY\").append(
-    	'<div id=\"caCreateChild2Panel\" class=\"caCreateChild2Panel\"><div class=\"dialogHeader\">Mise en caisse</div><div id=\"caCreateChild2PanelContentArea\"></div></div>'
+    	jQuery(\"BODY\").append('<div id=\"caCreateChild2Panel\" class=\"caCreateChild2Panel\"><div class=\"dialogHeader\">Mise en caisse <a class=\"form-button\" style=\"display:inline-block;float:right;\" id=\"MovementQuickAddForm\" onclick=\"modalArcheologyBoxes.hidePanel();\"><span class=\"form-button\"><i class=\"caIcon fa fa-minus-circle cancelIcon fa-2x\"></i>Annuler</span></a></div><div id=\"caCreateChild2PanelContentArea\"></div></div>'
     	);
         
     });
@@ -128,6 +135,95 @@ class archeologyBoxesPlugin extends BaseApplicationPlugin
             $va_params["caEditorInspectorAppend"] = $vs_buf;
         }
 
+		if ($vs_table_name == "ca_sets") {
+			$vs_archeologyBoxes_url = caNavUrl($this->getRequest(), "archeologyBoxes", "box", "Popup", array("set"=>$vn_item_id));
+
+			$vs_buf = "<div style=\"text-align:center;width:100%;margin:10px 0 20px 0;\">"
+				. "<span onclick=\"javascript:modalArcheologyBoxes.showPanel('" . $vs_archeologyBoxes_url . "');\" class='put-in-box-button'>"
+				. $this->opo_config->get('button_text')
+				. "</span></div>
+<style>
+.put-in-box-button {
+	border:1px solid #23B5C9;
+	background:#23B5C9;
+	color:white;
+	border-radius:6px;
+	padding:10px;
+	cursor:pointer;
+}
+
+#caCreateChild2Panel {
+    position: fixed;
+    top: 120px !important;
+    left: 0px;
+    width: 950px;
+    display: none;
+    margin: 0px;
+    padding:0px !important;
+    z-index: 31000;			/* needs to be on top of menu bar, which has z-index=30000 */
+    background-color: #FFFFFF;
+    border-radius:4px;
+    -moz-border-radius:4px;
+    -webkit-border-radius:4px;
+}
+#caCreateChild2Panel .close a{
+    text-decoration:none;
+    font-size:16px;
+}
+
+#caCreateChild2PanelContentArea {
+    padding:10px;
+}
+
+#caCreateChild2PanelControlButtons {
+    width: 100%;
+    text-align: center;
+}
+
+#caCreateChild2PanelControlButtons table {
+    width: 100%;
+}
+#caCreateChild2PanelControlButtons img.form-button-left {
+	margin-top:-10px;
+}
+</style>
+<script>
+    var modalArcheologyBoxes={};
+    jQuery(document).on(\"ready\", function() {
+    	if (caUI.initPanel) {
+			modalArcheologyBoxes = caUI.initPanel({ 
+				panelID: \"caCreateChild2Panel\",						/* DOM ID of the <div> enclosing the panel */
+				panelContentID: \"caCreateChild2PanelContentArea\",		/* DOM ID of the content area <div> in the panel */
+				exposeBackgroundColor: \"#000000\",				
+				exposeBackgroundOpacity: 0.7,					
+				panelTransitionSpeed: 400,						
+				closeButtonSelector: \".close\",
+				center: true,
+				onOpenCallback: function() {
+				jQuery(\"#topNavContainer\").hide(250);
+				},
+				onCloseCallback: function() {
+					jQuery(\"#topNavContainer\").show(250);
+				}
+			});
+		}
+    	jQuery(\"BODY\").append('<div id=\"caCreateChild2Panel\" class=\"caCreateChild2Panel\"><div class=\"dialogHeader\">Mise en caisse <a class=\"form-button\" style=\"display:inline-block;float:right;\" id=\"MovementQuickAddForm\" onclick=\"modalArcheologyBoxes.hidePanel();\"><span class=\"form-button\"><i class=\"caIcon fa fa-minus-circle cancelIcon fa-2x\"></i>Annuler</span></a></div><div id=\"caCreateChild2PanelContentArea\"></div></div>'
+    	);
+        
+    });
+    
+    //modalArcheologyBoxes.showPanel('http://www.inrap.local/gestion/index.php/lookup/StorageLocation/GetHierarchyLevel?id=0%3A0&bundle=&init=1&root_item_id=&start=0&max=500'); //'http://www.inrap.local/".$vs_archeologyBoxes_url."');
+    console.log('http://www.inrap.local".$vs_archeologyBoxes_url."');
+      
+        
+</script>
+
+";
+
+			$va_params["caEditorInspectorAppend"] = $vs_buf;
+		}
+
+
         return $va_params;
     }
     # -------------------------------------------------------
@@ -141,11 +237,7 @@ class archeologyBoxesPlugin extends BaseApplicationPlugin
         return $pa_menu_bar;
     }
 
-    public function hookRenderWidgets($pa_widgets_config)
-    {
-        // No widget for now
-        return $pa_widgets_config;
-    }
+
     # -------------------------------------------------------
     /**
      * Get plugin user actions
